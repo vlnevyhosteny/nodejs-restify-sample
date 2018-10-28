@@ -1,4 +1,7 @@
-//import { config } from './config/env';
+import "reflect-metadata";
+
+import { settings } from './config/AppSettings';
 import { server } from './config/restify';
+
 
 export { server };

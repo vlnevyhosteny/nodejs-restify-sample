@@ -7,7 +7,9 @@
       "removeComments": true,
       "noImplicitReturns": true,
       "noImplicitAny": false,
-      "preserveConstEnums": true
+      "preserveConstEnums": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true
     },
     "filesGlob": [
       "/app",
