@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, OneToMany } from 'typeorm';
 import { User } from './User';
-import { type } from "os";
 import { MonitoringResult } from './MonitoringResult';
 
 @Entity()

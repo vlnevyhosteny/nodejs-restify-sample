@@ -3,6 +3,7 @@ import * as restify from 'restify';
 import * as path from 'path';
 import { settings } from './AppSettings';
 // import { logger } from '../utils/logger';
+import { ConnectionOptionsReader, getConnectionManager } from "typeorm";
 
 // get path to route handlers
 const pathToRoutes: string = path.join(settings.root, '/app/routes');
@@ -12,8 +13,9 @@ const server: restify.Server = restify.createServer({ name: settings.name });
 
 function respond(req, res, next) {
     res.send('hello ' + req.params.name);
+
     next();
-  }
+}
 
 server.get('/hello/:name', respond);
 server.head('/hello/:name', respond);
