@@ -1,9 +1,5 @@
 import "reflect-metadata";
 
-import { settings } from './config/AppSettings';
-import { server } from './config/restify';
-import { createConnection } from "typeorm";
+import { StartServer } from './config/restify';
 
-createConnection();
-
-export { server };
+StartServer();
