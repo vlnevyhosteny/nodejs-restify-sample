@@ -6,33 +6,35 @@ import { InversifyRestifyServer } from 'inversify-restify-utils';
 import { container } from './inversify.config';
 import { TYPES } from '../src/services/Types';
 import { logger } from '../src/logger/Logger';
+const restify = require("restify");
 
 export const StartServer = async () => {
-  // get path to route handlers
   const pathToRoutes: string = path.join(settings.root, '/app/routes');
 
   const inversify = new InversifyRestifyServer(container, { name: settings.name, log: logger });
-  const server = inversify.build();
+
+  inversify.setConfig((app) => {
+    app.use(restify.plugins.acceptParser(app.acceptable));
+    app.use(restify.plugins.queryParser({
+      mapParams: true
+     }));
+    app.use(restify.plugins.bodyParser({
+      mapParams: true,
+      requestBodyOnGet: true
+    }));
+  });
 
   await CreateTypeormConnection();
 
   var env = process.env.NODE_ENV || 'dev';
   if(env == 'dev') {
-    container.get<DataSeedingService>(TYPES.DataSeedingService).SeedUsersIfEmpty();
+    let seedingService = container.get<DataSeedingService>(TYPES.DataSeedingService);
+
+    seedingService.SeedUsersIfEmpty();
   }
 
-  function respond(req, res, next) {
-      res.send('hello ' + req.params.name);
-
-      next();
-  }
-
-  server.get('/hello/:name', respond);
-  server.head('/hello/:name', respond);
-
-  server.listen(settings.port, function() {
-    console.log('%s listening at %s', server.name, server.url);
-  });
+  const server = inversify.build();
+  server.listen(settings.port)
 
   return server;
 }

@@ -9,7 +9,8 @@
       "noImplicitAny": false,
       "preserveConstEnums": true,
       "emitDecoratorMetadata": true,
-      "experimentalDecorators": true
+      "experimentalDecorators": true,
+      "allowJs": true
     },
     "filesGlob": [
       "/app",
