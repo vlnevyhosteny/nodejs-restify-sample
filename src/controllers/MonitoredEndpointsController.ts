@@ -11,7 +11,7 @@ export class MonitoredEndpointsController implements interfaces.Controller {
     constructor() { }
 
     @Get("/")
-    public Get(req: Request) {  
+    public async Get(req: Request) {  
         if(req.body.ownerId == undefined) {
             return new BadRequestError("Owner id not given.");
         }
@@ -19,11 +19,11 @@ export class MonitoredEndpointsController implements interfaces.Controller {
         let owner = new User();
         owner.Id = req.body.ownerId;
 
-        return MonitoredEndpoint.find({ Owner: owner });
+        return await MonitoredEndpoint.find({ Owner: owner });
     }
 
     @Get("/:id")
-    public GetId(req: Request) {  
+    public async GetId(req: Request) {  
         if(req.body.ownerId == undefined) {
             return new BadRequestError("Owner id not given.");
         }
@@ -32,23 +32,23 @@ export class MonitoredEndpointsController implements interfaces.Controller {
             return new BadRequestError("Id param not given.");
         }
         
-        return MonitoredEndpoint.createQueryBuilder("endpoint")
-                                .where("endpoint.id = :id AND endpoint.ownerId = :ownerId",
-                                    { id: req.params.id, ownerId: req.body.ownerId });
+        return await MonitoredEndpoint.createQueryBuilder("endpoint")
+                                      .where("endpoint.id = :id AND endpoint.ownerId = :ownerId",
+                                        { id: req.params.id, ownerId: req.body.ownerId });
     }
 
     @Post("/")
-    public Create(req: Request) {
+    public async Create(req: Request) {
         let newItem = this.MapNewMonitoredEndpoint(req);
         if(newItem == undefined) {
             return new BadRequestError("Unable to parse body values.") 
         }
         
-        return MonitoredEndpoint.insert(newItem);
+        return await MonitoredEndpoint.insert(newItem);
     }
 
     @Put("/:id")
-    public Update(req: Request) {
+    public async Update(req: Request) {
         if(req.body.ownerId == undefined) {
             return new BadRequestError("Owner id not given.")
         }
@@ -57,24 +57,24 @@ export class MonitoredEndpointsController implements interfaces.Controller {
             return new BadRequestError("Id param not given.");
         }
  
-        let item = MonitoredEndpoint.createQueryBuilder("endpoint")
-                                    .where("endpoint.id = :id AND endpoint.ownerId = :ownerId",
-                                        { id: req.params.id, ownerId: req.body.ownerId })
-                                    .getOne();
+        let item = await MonitoredEndpoint.createQueryBuilder("endpoint")
+                                          .where("endpoint.id = :id AND endpoint.ownerId = :ownerId",
+                                            { id: req.params.id, ownerId: req.body.ownerId })
+                                          .getOne();
         if(item == undefined) {
             return new NotFoundError();
         }
 
-        let itemToUpdate = this.MapUpdateMonitoredEndpoint(req);
+        let itemToUpdate = await this.MapUpdateMonitoredEndpoint(req);
         if(itemToUpdate == undefined) {
             return new BadRequestError("Unable to parse body values.") 
         }
         
-        return MonitoredEndpoint.update(req.params.id, itemToUpdate);
+        return await MonitoredEndpoint.update(req.params.id, itemToUpdate);
     }
 
     @Delete("/:id")
-    public Delete(req: Request) {
+    public async Delete(req: Request) {
         if(req.body.ownerId == undefined) {
             return new BadRequestError("Owner id not given.")
         }
@@ -83,15 +83,15 @@ export class MonitoredEndpointsController implements interfaces.Controller {
             return new BadRequestError("Id param not given.");
         }
 
-        let item = MonitoredEndpoint.createQueryBuilder("endpoint")
-                                    .where("endpoint.id = :id AND endpoint.ownerId = :ownerId",
-                                        { id: req.params.id, ownerId: req.body.ownerId })
-                                    .getOne();
+        let item = await MonitoredEndpoint.createQueryBuilder("endpoint")
+                                          .where("endpoint.id = :id AND endpoint.ownerId = :ownerId",
+                                            { id: req.params.id, ownerId: req.body.ownerId })
+                                          .getOne();
         if(item == undefined) {
             return new NotFoundError();
         }
 
-        return MonitoredEndpoint.delete(req.params.id);
+        return await MonitoredEndpoint.delete(req.params.id);
     }
 
     private MapUpdateMonitoredEndpoint(req: Request) : MonitoredEndpoint {
