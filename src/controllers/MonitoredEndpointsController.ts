@@ -19,7 +19,13 @@ export class MonitoredEndpointsController implements interfaces.Controller {
         let owner = new User();
         owner.Id = req.body.ownerId;
 
-        return await MonitoredEndpoint.find({ Owner: owner });
+        let result = await MonitoredEndpoint.find({ Owner: owner });
+
+        if(result == undefined) {
+            return new MonitoredEndpoint[0];
+        }
+
+        return result;
     }
 
     @Get("/:id")
@@ -32,9 +38,16 @@ export class MonitoredEndpointsController implements interfaces.Controller {
             return new BadRequestError("Id param not given.");
         }
         
-        return await MonitoredEndpoint.createQueryBuilder("endpoint")
+        let result = await MonitoredEndpoint.createQueryBuilder("endpoint")
                                       .where("endpoint.id = :id AND endpoint.ownerId = :ownerId",
-                                        { id: req.params.id, ownerId: req.body.ownerId });
+                                        { id: req.params.id, ownerId: req.body.ownerId })
+                                      .getOne();
+
+        if(result == undefined) {
+            return new MonitoredEndpoint[0];
+        }
+
+        return result;
     }
 
     @Post("/")

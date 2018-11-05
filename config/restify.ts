@@ -6,6 +6,7 @@ import { InversifyRestifyServer } from 'inversify-restify-utils';
 import { container } from './inversify.config';
 import { TYPES } from '../src/services/Types';
 import { logger } from '../src/logger/Logger';
+import { User } from '../src/models/User';
 const restify = require("restify");
 
 export const StartServer = async () => {
@@ -22,6 +23,15 @@ export const StartServer = async () => {
       mapParams: true,
       requestBodyOnGet: true
     }));
+
+    app.use(restify.authorizationParser());
+    app.use(async function (req, res, next) {
+      if(await User.count({ UserName: req.username, AccessToken: req.authorization.basic.password }) == 0) {
+        return next(new restify.NotAuthorizedError());
+      } else {
+        return next();
+      }
+    });
   });
 
   await CreateTypeormConnection();

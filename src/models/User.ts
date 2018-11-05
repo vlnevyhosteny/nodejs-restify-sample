@@ -13,6 +13,7 @@ export class User extends BaseEntity {
     @Column()
     Email: string;
 
+    @Column()
     @Generated("uuid")
     AccessToken: string;
 
