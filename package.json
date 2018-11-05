@@ -21,7 +21,7 @@
     "bunyan": "^1.8.12",
     "inversify": "^5.0.1",
     "inversify-restify-utils": "^3.4.0",
-    "mysql2": "^1.6.1",
+    "mysql2": "^1.6.2",
     "reflect-metadata": "^0.1.12",
     "restify": "^4.1.1",
     "typeorm": "^0.2.8"
