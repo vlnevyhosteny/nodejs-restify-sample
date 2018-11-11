@@ -26,6 +26,10 @@ export const StartServer = async () => {
 
     app.use(restify.authorizationParser());
     app.use(async function (req, res, next) {
+      if(req.username == undefined || req.authorization.basic.password == undefined) {
+        return next(new restify.NotAuthorizedError());
+      }
+
       if(await User.count({ UserName: req.username, AccessToken: req.authorization.basic.password }) == 0) {
         return next(new restify.NotAuthorizedError());
       } else {
