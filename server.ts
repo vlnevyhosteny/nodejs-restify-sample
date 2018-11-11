@@ -1,4 +1,5 @@
-//import { config } from './config/env';
-import { server } from './config/restify';
+import "reflect-metadata";
 
-export { server };
+import { StartServer } from './config/restify';
+
+StartServer();

@@ -1,25 +1,54 @@
-import * as fs from 'fs';
-import * as restify from 'restify';
 import * as path from 'path';
 import { settings } from './AppSettings';
-// import { logger } from '../utils/logger';
+import { CreateTypeormConnection } from '../src/database/CreateTypeormConnection';
+import { DataSeedingService } from '../src/services/DataSeedingService';
+import { InversifyRestifyServer } from 'inversify-restify-utils';
+import { container } from './inversify.config';
+import { TYPES } from '../src/services/Types';
+import { logger } from '../src/logger/Logger';
+import { User } from '../src/models/User';
+const restify = require("restify");
 
-// get path to route handlers
-const pathToRoutes: string = path.join(settings.root, '/app/routes');
+export const StartServer = async () => {
+  const pathToRoutes: string = path.join(settings.root, '/app/routes');
 
-// create Restify server with the configured name
-const server: restify.Server = restify.createServer({ name: settings.name });
+  const inversify = new InversifyRestifyServer(container, { name: settings.name, log: logger });
 
-function respond(req, res, next) {
-    res.send('hello ' + req.params.name);
-    next();
+  inversify.setConfig((app) => {
+    app.use(restify.plugins.acceptParser(app.acceptable));
+    app.use(restify.plugins.queryParser({
+      mapParams: true
+     }));
+    app.use(restify.plugins.bodyParser({
+      mapParams: true,
+      requestBodyOnGet: true
+    }));
+
+    app.use(restify.authorizationParser());
+    app.use(async function (req, res, next) {
+      if(req.username == undefined || req.authorization.basic.password == undefined) {
+        return next(new restify.NotAuthorizedError());
+      }
+
+      if(await User.count({ UserName: req.username, AccessToken: req.authorization.basic.password }) == 0) {
+        return next(new restify.NotAuthorizedError());
+      } else {
+        return next();
+      }
+    });
+  });
+
+  await CreateTypeormConnection();
+
+  var env = process.env.NODE_ENV || 'dev';
+  if(env == 'dev') {
+    let seedingService = container.get<DataSeedingService>(TYPES.DataSeedingService);
+
+    seedingService.SeedUsersIfEmpty();
   }
 
-server.get('/hello/:name', respond);
-server.head('/hello/:name', respond);
+  const server = inversify.build();
+  server.listen(settings.port)
 
-server.listen(settings.port, function() {
-  console.log('%s listening at %s', server.name, server.url);
-});
-
-export { server };
+  return server;
+}
