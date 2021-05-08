@@ -24,7 +24,7 @@
     "mysql2": "^1.6.5",
     "reflect-metadata": "^0.1.13",
     "restify": "^4.1.1",
-    "typeorm": "^0.2.18"
+    "typeorm": "^0.2.25"
   },
   "devDependencies": {
     "jest": "^23.6.0",
